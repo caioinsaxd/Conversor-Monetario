@@ -1,3 +1,5 @@
+import { config } from '../config/index.js';
+
 export class CacheManager {
   constructor(ttlSeconds = 120) {
     this.cache = new Map();
@@ -45,4 +47,4 @@ export class CacheManager {
   }
 }
 
-export const cacheManager = new CacheManager(120); //2 min de cache
+export const cacheManager = new CacheManager(config.CACHE_TTL);
