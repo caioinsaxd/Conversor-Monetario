@@ -25,8 +25,27 @@ npm install
 # 2.Configurar env
 cp .env.example .env
 
-# 3.Iniciar o servidor
+# 3.Compilar TypeScript (opcional - apenas para produção)
+npm run build
+
+# 4.Iniciar o servidor
 npm start
+```
+
+---
+
+## Comandos
+
+```bash
+npm start             # Inicia o servidor
+npm run dev           # Modo desenvolvimento
+npm run build         # Compila TypeScript
+npm test              # Executa testes
+npm run test:unit     # Testes unitários
+npm run test:integration  # Testes integração
+npm run test:watch    # Testes em modo watch
+npm run lint          # Verifica código
+npm run lint:fix      # Corrige erros
 ```
 
 ---
@@ -147,6 +166,23 @@ curl -X POST http://localhost:3000/api/convert \
 
 ![Realizar conversão](docs/converter.png)
 
+## Postman collection
+
+A collection está disponível em: [postman/collections/](postman/collections/)
+
+
+---
+
+## Tecnologias
+
+- **TypeScript** — linguagem principal
+- **Node.js** — runtime
+- **Express** — framework HTTP
+- **Zod** — validação de dados
+- **JWT** — autenticação
+- **Axios** — HTTP client
+- **Jest** — testes
+- **ESLint** — linting
 
 ---
 
@@ -164,15 +200,6 @@ npm run test:integration
 
 #Com relatório de cobertura
 npm test -- --coverage
-```
-
----
-
-## Lint
-
-```bash
-npm run lint
-npm run lint:fix
 ```
 
 ---
@@ -199,7 +226,7 @@ src/
 │   ├── api/                    # Controllers e rotas;
 │   └── middleware/             # Middlewares de autenticação e erros;
 ├── utils/                      # Erros customizados;
-├── swagger.js                  # Configuração do Swagger;
-├── app.js                      # Configuração do Express;
-└── index.js                    # Entry point da aplicação;
+├── swagger.ts                  # Configuração do Swagger;
+├── app.ts                      # Configuração do Express;
+└── index.ts                    # Entry point da aplicação;
 ```
