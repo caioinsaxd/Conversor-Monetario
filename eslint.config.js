@@ -1,6 +1,9 @@
+import tseslint from 'typescript-eslint';
+
 export default [
+  ...tseslint.configs.recommended,
   {
-    files: ['**/*.js'],
+    files: ['**/*.ts', '**/*.js'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -9,11 +12,14 @@ export default [
         process: 'readonly',
         Buffer: 'readonly',
         global: 'readonly',
+        setTimeout: 'readonly',
       },
     },
     rules: {
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+      '@typescript-eslint/no-namespace': 'off',
       'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-undef': 'error',
+      'no-undef': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'prefer-const': 'error',
       'no-var': 'error',
@@ -26,7 +32,7 @@ export default [
     },
   },
   {
-    files: ['tests/**/*.js'],
+    files: ['tests/**/*.ts'],
     languageOptions: {
       globals: {
         describe: 'readonly',
@@ -40,6 +46,9 @@ export default [
         jest: 'readonly',
         setTimeout: 'readonly',
       },
+    },
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 ];

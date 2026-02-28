@@ -1,9 +1,25 @@
 import { cacheManager } from '../../data-access/cache.js';
-import { exchangeRateService } from './exchangeRateService.js';
+import { exchangeRateService, ExchangeRateData } from './exchangeRateService.js';
 import { validateConversionRequest } from '../validators/conversionValidator.js';
 
+export interface ConversionRequest {
+  fromCurrency: string;
+  toCurrency: string;
+  value: number;
+}
+
+export interface ConversionResult {
+  fromCurrency: string;
+  toCurrency: string;
+  value: number;
+  convertedValue: number;
+  rate: number;
+  source: string;
+  timestamp: Date;
+}
+
 export class ConversionService {
-  async convert(fromCurrency, toCurrency, value) {
+  async convert(fromCurrency: string, toCurrency: string, value: number | string): Promise<ConversionResult> {
     //valida entrada das moeda
     const validated = validateConversionRequest({
       fromCurrency,
@@ -29,10 +45,10 @@ export class ConversionService {
     const cachedRate = cacheManager.get(
       validated.fromCurrency,
       validated.toCurrency,
-    );
+    ) as ExchangeRateData | null;
 
-    let exchangeData;
-    let source = 'CACHE';
+    let exchangeData: ExchangeRateData;
+    let source: string;
 
     if (!cachedRate) {
       //faz a busca da API
@@ -50,6 +66,7 @@ export class ConversionService {
       );
     } else {
       exchangeData = cachedRate;
+      source = 'CACHE';
     }
 
     const convertedValue = validated.value * exchangeData.rate;

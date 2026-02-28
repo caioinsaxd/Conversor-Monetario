@@ -2,10 +2,10 @@ import { describe, it, expect, beforeEach } from '@jest/globals';
 import { CacheManager } from '../../src/data-access/cache.js';
 
 describe('CacheManager', () => {
-  let cache;
+  let cache: CacheManager;
 
   beforeEach(() => {
-    cache = new CacheManager(1); //1 sec de TTL pra testes
+    cache = new CacheManager(1);
   });
 
   describe('get and set', () => {
@@ -36,7 +36,6 @@ describe('CacheManager', () => {
       const data = { rate: 5.5 };
       cache.set('USD', 'BRL', data);
 
-      //aguarda 2 sec
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       const result = cache.get('USD', 'BRL');

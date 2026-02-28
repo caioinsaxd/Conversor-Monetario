@@ -1,16 +1,24 @@
 import { config } from '../config/index.js';
 
-export class CacheManager {
-  constructor(ttlSeconds = 120) {
+interface CacheEntry<T> {
+  data: T;
+  timestamp: number;
+}
+
+export class CacheManager<T = unknown> {
+  private cache: Map<string, CacheEntry<T>>;
+  public readonly ttlSeconds: number;
+
+  constructor(ttlSeconds: number = 120) {
     this.cache = new Map();
     this.ttlSeconds = ttlSeconds;
   }
 
-  generateKey(fromCurrency, toCurrency) {
+  generateKey(fromCurrency: string, toCurrency: string): string {
     return `${fromCurrency.toUpperCase()}_${toCurrency.toUpperCase()}`;
   }
 
-  get(fromCurrency, toCurrency) {
+  get(fromCurrency: string, toCurrency: string): T | null {
     const key = this.generateKey(fromCurrency, toCurrency);
     const entry = this.cache.get(key);
 
@@ -27,7 +35,7 @@ export class CacheManager {
     return entry.data;
   }
 
-  set(fromCurrency, toCurrency, data) {
+  set(fromCurrency: string, toCurrency: string, data: T): void {
     const key = this.generateKey(fromCurrency, toCurrency);
     this.cache.set(key, {
       data,
@@ -35,11 +43,11 @@ export class CacheManager {
     });
   }
 
-  clear() {
+  clear(): void {
     this.cache.clear();
   }
 
-  getStats() {
+  getStats(): { size: number; ttlSeconds: number } {
     return {
       size: this.cache.size,
       ttlSeconds: this.ttlSeconds,

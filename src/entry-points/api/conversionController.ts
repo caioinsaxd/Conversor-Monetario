@@ -1,9 +1,14 @@
+import { Request, Response } from 'express';
 import { conversionService } from '../../domain/services/conversionService.js';
 import { asyncHandler } from '../middleware/errorHandler.js';
 
 export const conversionController = {
-  convert: asyncHandler(async (req, res) => {
-    const { fromCurrency, toCurrency, value } = req.body;
+  convert: asyncHandler(async (req: Request, res: Response): Promise<void> => {
+    const { fromCurrency, toCurrency, value } = req.body as {
+      fromCurrency: string;
+      toCurrency: string;
+      value: number;
+    };
 
     const result = await conversionService.convert(
       fromCurrency,
@@ -20,7 +25,7 @@ export const conversionController = {
     });
   }),
 
-  health: asyncHandler(async (req, res) => {
+  health: asyncHandler(async (_req: Request, res: Response): Promise<void> => {
     res.status(200).json({
       status: 'healthy',
       timestamp: new Date(),

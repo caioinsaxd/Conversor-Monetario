@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
+import { ZodError } from 'zod';
 
 dotenv.config();
 
@@ -12,13 +13,17 @@ const configSchema = z.object({
   CACHE_TTL: z.coerce.number().int().positive().default(120),
 });
 
-const parseConfig = () => {
+const parseConfig = (): z.infer<typeof configSchema> => {
   try {
     return configSchema.parse(process.env);
   } catch (error) {
-    console.error('Configuration validation failed:', error.errors);
+    if (error instanceof ZodError) {
+      console.error('Configuration validation failed:', error.errors);
+    }
     process.exit(1);
   }
 };
 
 export const config = parseConfig();
+
+export type Config = z.infer<typeof configSchema>;

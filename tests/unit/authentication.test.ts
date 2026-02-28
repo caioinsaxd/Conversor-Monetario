@@ -7,7 +7,7 @@ import { generateJWT } from '../../src/entry-points/middleware/authentication.js
 const API_KEY = 'test_api_key_123456789';
 
 describe('Authentication Middleware', () => {
-  let token;
+  let token: string;
 
   beforeEach(() => {
     token = generateJWT({ sub: 'test-user', role: 'user' });
@@ -78,7 +78,7 @@ describe('Authentication Middleware', () => {
       const expiredToken = jwt.default.sign(
         { sub: 'test-user' },
         'test_jwt_secret_key_123456789',
-        { expiresIn: '-1s' }
+        { expiresIn: '-1s' },
       );
 
       const response = await request(app)

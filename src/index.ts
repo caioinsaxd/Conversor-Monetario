@@ -7,7 +7,6 @@ const server = app.listen(PORT, () => {
   console.log(`[INFO] Server running on port ${PORT}`);
 });
 
-
 process.on('SIGTERM', () => {
   console.log('[INFO] SIGTERM received: closing server');
   server.close(() => {

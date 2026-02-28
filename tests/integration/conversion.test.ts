@@ -9,7 +9,7 @@ const API_KEY = 'test_api_key_123456789';
 const AWESOME_API_URL = 'https://economia.awesomeapi.com.br';
 
 describe('Conversion API Integration Tests', () => {
-  let token;
+  let token: string;
 
   beforeAll(() => {
     token = generateJWT({ sub: 'test-user', role: 'user' });
@@ -166,7 +166,6 @@ describe('Conversion API Integration Tests', () => {
           },
         });
 
-      //primeiro request (da api)
       const response1 = await request(app)
         .post('/api/convert')
         .set('Authorization', `Bearer ${token}`)
@@ -178,7 +177,6 @@ describe('Conversion API Integration Tests', () => {
 
       expect(response1.body.data.source).toBe('AwesomeAPI');
 
-      //segundo request (do cache)
       const response2 = await request(app)
         .post('/api/convert')
         .set('Authorization', `Bearer ${token}`)

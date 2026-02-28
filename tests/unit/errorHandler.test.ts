@@ -1,13 +1,15 @@
-import { describe, it, expect, beforeEach } from '@jest/globals';
-import { errorHandlerMiddleware } from '../../src/entry-points/middleware/errorHandler.js';
+import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
+import { Request, Response, NextFunction } from 'express';
+import { errorHandlerMiddleware, asyncHandler } from '../../src/entry-points/middleware/errorHandler.js';
 import { AppError, ExternalServiceError } from '../../src/utils/errors.js';
 
 describe('Error Handler Middleware', () => {
-  let mockReq;
-  let mockRes;
-  let mockNext;
-  let mockExit;
+  let mockReq: Partial<Request>;
+  let mockRes: Partial<Response>;
+  let mockNext: NextFunction;
+  let mockExit: jest.SpyInstance;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   beforeEach(() => {
     mockReq = {};
     mockRes = {
@@ -15,7 +17,7 @@ describe('Error Handler Middleware', () => {
       json: jest.fn().mockReturnThis(),
     };
     mockNext = jest.fn();
-    mockExit = jest.spyOn(process, 'exit').mockImplementation(() => {});
+    mockExit = jest.spyOn(process, 'exit').mockImplementation(((code: any) => code) as any);
   });
 
   afterEach(() => {
@@ -25,9 +27,9 @@ describe('Error Handler Middleware', () => {
   describe('AppError instances', () => {
     it('should handle AppError with details', () => {
       const error = new AppError('Validation failed', 400, 'VALIDATION_ERROR');
-      error.details = { field: 'value' };
+      (error as AppError & { details: unknown }).details = { field: 'value' };
 
-      errorHandlerMiddleware(error, mockReq, mockRes, mockNext);
+      errorHandlerMiddleware(error, mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.status).toHaveBeenCalledWith(400);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -44,7 +46,7 @@ describe('Error Handler Middleware', () => {
         originalError: 'Connection timeout',
       });
 
-      errorHandlerMiddleware(error, mockReq, mockRes, mockNext);
+      errorHandlerMiddleware(error, mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.status).toHaveBeenCalledWith(503);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -61,7 +63,7 @@ describe('Error Handler Middleware', () => {
     it('should handle generic errors (non-AppError)', () => {
       const error = new Error('Something went wrong');
 
-      errorHandlerMiddleware(error, mockReq, mockRes, mockNext);
+      errorHandlerMiddleware(error, mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockRes.status).toHaveBeenCalledWith(500);
       expect(mockRes.json).toHaveBeenCalledWith({
@@ -74,9 +76,9 @@ describe('Error Handler Middleware', () => {
 
     it('should not call process.exit for non-catastrophic errors', () => {
       const error = new Error('Non-critical error');
-      error.isCatastrophic = false;
+      (error as AppError).isCatastrophic = false;
 
-      errorHandlerMiddleware(error, mockReq, mockRes, mockNext);
+      errorHandlerMiddleware(error, mockReq as Request, mockRes as Response, mockNext);
 
       expect(mockExit).not.toHaveBeenCalled();
     });
@@ -84,16 +86,14 @@ describe('Error Handler Middleware', () => {
 
   describe('AsyncHandler', () => {
     it('should wrap async functions and catch errors', async () => {
-      const { asyncHandler } = await import('../../src/entry-points/middleware/errorHandler.js');
-      
-      const mockReq = {};
+      const mockReq = {} as Request;
       const mockRes = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn().mockReturnThis(),
-      };
+      } as unknown as Response;
       const mockNext = jest.fn();
 
-      const asyncFn = asyncHandler(async (req, res, next) => {
+      const asyncFn = asyncHandler(async (_req: Request, _res: Response, _next: NextFunction) => {
         throw new Error('Async error');
       });
 

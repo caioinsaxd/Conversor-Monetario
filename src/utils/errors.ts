@@ -1,5 +1,10 @@
 export class AppError extends Error {
-  constructor(message, statusCode = 500, code = 'INTERNAL_ERROR') {
+  public readonly statusCode: number;
+  public readonly code: string;
+  public isCatastrophic: boolean;
+  public details?: unknown;
+
+  constructor(message: string, statusCode = 500, code = 'INTERNAL_ERROR') {
     super(message);
     this.name = 'AppError';
     this.statusCode = statusCode;
@@ -10,7 +15,7 @@ export class AppError extends Error {
 }
 
 export class ValidationError extends AppError {
-  constructor(message, details = []) {
+  constructor(message: string, details: unknown[] = []) {
     super(message, 400, 'VALIDATION_ERROR');
     this.name = 'ValidationError';
     this.details = details;
@@ -32,7 +37,7 @@ export class NotFoundError extends AppError {
 }
 
 export class ExternalServiceError extends AppError {
-  constructor(message = 'External service unavailable', details = {}) {
+  constructor(message = 'External service unavailable', details: Record<string, unknown> = {}) {
     super(message, 503, 'EXTERNAL_SERVICE_ERROR');
     this.name = 'ExternalServiceError';
     this.details = details;

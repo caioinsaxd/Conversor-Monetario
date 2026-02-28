@@ -1,7 +1,5 @@
 import { Router } from 'express';
 import { conversionController } from './conversionController.js';
-import { generateJWT } from '../middleware/authentication.js';
-import { config } from '../../config/index.js';
 
 const router = Router();
 

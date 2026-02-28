@@ -1,19 +1,30 @@
 export default {
+  preset: 'ts-jest/presets/default-esm',
   testEnvironment: 'node',
-  transform: {
-    '^.+\\.jsx?$': 'babel-jest',
+  extensionsToTreatAsEsm: ['.ts'],
+  moduleNameMapper: {
+    '^(\\.{1,2}/.*)\\.js$': '$1',
   },
+  transform: {
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        useESM: true,
+      },
+    ],
+  },
+  testMatch: [
+    '**/tests/**/*.test.ts',
+    '**/tests/**/*.test.js',
+  ],
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   collectCoverageFrom: [
-    'src/**/*.js',
-    '!src/index.js',
-    '!src/app.js',
+    'src/**/*.ts',
+    '!src/**/*.d.ts',
   ],
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/tests/',
-  ],
-  testMatch: [
-    '**/tests/**/*.test.js',
   ],
   testTimeout: 10000,
 };

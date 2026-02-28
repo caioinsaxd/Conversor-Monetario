@@ -17,7 +17,7 @@ describe('ConversionValidator', () => {
 
     it('should throw ValidationError for invalid currency code', () => {
       const request = {
-        fromCurrency: 'USDA', //4 caracteres
+        fromCurrency: 'USDA',
         toCurrency: 'BRL',
         value: 100,
       };

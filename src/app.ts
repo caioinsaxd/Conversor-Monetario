@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { config } from './config/index.js';
 import routes from './entry-points/api/routes.js';
@@ -15,7 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 //rota pública sem auth
-app.get('/health', (req, res) => {
+app.get('/health', (_req: Request, res: Response) => {
   res.status(200).json({
     status: 'OK',
     timestamp: new Date(),
@@ -23,9 +23,10 @@ app.get('/health', (req, res) => {
 });
 
 //rota para gerar token de teste(apenas em ambiente de dev)
-app.post('/auth/token', (req, res) => {
+app.post('/auth/token', (_req: Request, res: Response): void => {
   if (config.NODE_ENV !== 'development') {
-    return res.status(403).json({ error: 'Disponível apenas em desenvolvimento' });
+    res.status(403).json({ error: 'Disponível apenas em desenvolvimento' });
+    return;
   }
   const token = generateJWT({ sub: 'test-user', role: 'user' });
   res.status(200).json({ token, expiresIn: '1h' });
@@ -45,7 +46,7 @@ app.use('/api', routes);
 //middleware de tratamento de erros
 app.use(errorHandlerMiddleware);
 
-app.use((req, res) => {
+app.use((_req: Request, res: Response) => {
   res.status(404).json({
     error: {
       message: 'Route not found',
@@ -54,13 +55,12 @@ app.use((req, res) => {
   });
 });
 
-
-process.on('unhandledRejection', (reason) => {
+process.on('unhandledRejection', (reason: unknown) => {
   console.error('[ERROR] Unhandled rejection:', reason);
   process.exit(1);
 });
 
-process.on('uncaughtException', (error) => {
+process.on('uncaughtException', (error: Error) => {
   console.error('[ERROR] Uncaught exception:', error.message);
   process.exit(1);
 });

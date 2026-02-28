@@ -1,5 +1,4 @@
-import { describe, it, expect } from '@jest/globals';
-import axios from 'axios';
+import { describe, it, expect, beforeEach } from '@jest/globals';
 import nock from 'nock';
 import { ExchangeRateService } from '../../src/domain/services/exchangeRateService.js';
 import { ExternalServiceError } from '../../src/utils/errors.js';
@@ -7,7 +6,7 @@ import { ExternalServiceError } from '../../src/utils/errors.js';
 const AWESOME_API_URL = 'https://economia.awesomeapi.com.br';
 
 describe('ExchangeRateService', () => {
-  let exchangeRateService;
+  let exchangeRateService: ExchangeRateService;
 
   beforeEach(() => {
     exchangeRateService = new ExchangeRateService();
@@ -39,7 +38,7 @@ describe('ExchangeRateService', () => {
         .reply(200, {});
 
       await expect(
-        exchangeRateService.fetchExchangeRate('INVALID', 'PAIR')
+        exchangeRateService.fetchExchangeRate('INVALID', 'PAIR'),
       ).rejects.toThrow(ExternalServiceError);
     });
 
@@ -49,7 +48,7 @@ describe('ExchangeRateService', () => {
         .reply(404, { message: 'Not found' });
 
       await expect(
-        exchangeRateService.fetchExchangeRate('XXX', 'YYY')
+        exchangeRateService.fetchExchangeRate('XXX', 'YYY'),
       ).rejects.toThrow(ExternalServiceError);
     });
 
@@ -59,7 +58,7 @@ describe('ExchangeRateService', () => {
         .replyWithError('Connection refused');
 
       await expect(
-        exchangeRateService.fetchExchangeRate('USD', 'EUR')
+        exchangeRateService.fetchExchangeRate('USD', 'EUR'),
       ).rejects.toThrow(ExternalServiceError);
     });
 
@@ -75,7 +74,7 @@ describe('ExchangeRateService', () => {
         });
 
       await expect(
-        exchangeRateService.fetchExchangeRate('USD', 'JPY')
+        exchangeRateService.fetchExchangeRate('USD', 'JPY'),
       ).rejects.toThrow(ExternalServiceError);
     });
   });

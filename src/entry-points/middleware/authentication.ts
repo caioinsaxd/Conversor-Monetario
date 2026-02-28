@@ -1,8 +1,21 @@
-import jwt from 'jsonwebtoken';
+import { Request, Response, NextFunction } from 'express';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { config } from '../../config/index.js';
 import { UnauthorizedError } from '../../utils/errors.js';
 
-export function authenticationMiddleware(req, res, next) {
+export interface AuthenticatedUser extends JwtPayload {
+  type?: string;
+}
+
+declare global {
+  namespace Express {
+    interface Request {
+      user?: AuthenticatedUser;
+    }
+  }
+}
+
+export function authenticationMiddleware(req: Request, res: Response, next: NextFunction): void {
   try {
     const authHeader = req.headers.authorization;
 
@@ -33,24 +46,27 @@ export function authenticationMiddleware(req, res, next) {
 
     //validação JWT
     try {
-      const decoded = jwt.verify(token, config.JWT_SECRET);
+      const decoded = jwt.verify(token, config.JWT_SECRET) as AuthenticatedUser;
       req.user = decoded;
       next();
     } catch (jwtError) {
-      console.warn(`[WARN] Invalid JWT token: ${jwtError.message}`);
+      const error = jwtError as Error;
+      console.warn(`[WARN] Invalid JWT token: ${error.message}`);
       throw new UnauthorizedError('Invalid or expired token');
     }
   } catch (error) {
     if (error instanceof UnauthorizedError) {
-      return res.status(error.statusCode).json({
+      res.status(error.statusCode).json({
         error: {
           message: error.message,
           code: error.code,
         },
       });
+      return;
     }
 
-    console.error(`[ERROR] Authentication error: ${error.message}`);
+    const err = error as Error;
+    console.error(`[ERROR] Authentication error: ${err.message}`);
     res.status(500).json({
       error: {
         message: 'Internal server error',
@@ -60,7 +76,7 @@ export function authenticationMiddleware(req, res, next) {
   }
 }
 
-export function generateJWT(payload = {}) {
+export function generateJWT(payload: object = {}): string {
   return jwt.sign(payload, config.JWT_SECRET, {
     expiresIn: '24h',
   });

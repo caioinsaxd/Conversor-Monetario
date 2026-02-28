@@ -2,7 +2,15 @@ import axios from 'axios';
 import { ExternalServiceError } from '../../utils/errors.js';
 import { config } from '../../config/index.js';
 
+export interface ExchangeRateData {
+  rate: number;
+  timestamp: Date;
+  source: string;
+}
+
 export class ExchangeRateService {
+  private readonly axiosInstance: ReturnType<typeof axios.create>;
+
   constructor() {
     this.axiosInstance = axios.create({
       baseURL: config.AWESOME_API_URL,
@@ -13,11 +21,11 @@ export class ExchangeRateService {
     });
   }
 
-  async fetchExchangeRate(fromCurrency, toCurrency) {
+  async fetchExchangeRate(fromCurrency: string, toCurrency: string): Promise<ExchangeRateData> {
     try {
       console.log(`[INFO] Fetching exchange rate: ${fromCurrency} -> ${toCurrency}`);
 
-      const response = await this.axiosInstance.get(
+      const response = await this.axiosInstance.get<Record<string, { bid: string; timestamp: number }>>(
         `/last/${fromCurrency}-${toCurrency}`,
       );
 
@@ -34,18 +42,19 @@ export class ExchangeRateService {
         source: 'AwesomeAPI',
       };
     } catch (error) {
-      console.error(`[ERROR] Failed to fetch exchange rate: ${error.message}`);
+      const axiosError = error as { message?: string; response?: { status?: number } };
+      console.error(`[ERROR] Failed to fetch exchange rate: ${axiosError.message}`);
 
-      if (error.response?.status === 404) {
+      if (axiosError.response?.status === 404) {
         throw new ExternalServiceError(
           'Currency pair not found or unavailable',
-          { originalError: error.message },
+          { originalError: axiosError.message },
         );
       }
 
       throw new ExternalServiceError(
         'Failed to fetch exchange rates. Please try again later.',
-        { originalError: error.message },
+        { originalError: axiosError.message },
       );
     }
   }
