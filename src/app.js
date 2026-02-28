@@ -4,6 +4,7 @@ import { config } from './config/index.js';
 import routes from './entry-points/api/routes.js';
 import { authenticationMiddleware, generateJWT } from './entry-points/middleware/authentication.js';
 import { errorHandlerMiddleware } from './entry-points/middleware/errorHandler.js';
+import { setupSwagger } from './swagger.js';
 
 const app = express();
 
@@ -22,11 +23,17 @@ app.get('/health', (req, res) => {
 });
 
 //rota para gerar token de teste(apenas em ambiente de dev)
+app.post('/auth/token', (req, res) => {
+  if (config.NODE_ENV !== 'development') {
+    return res.status(403).json({ error: 'Disponível apenas em desenvolvimento' });
+  }
+  const token = generateJWT({ sub: 'test-user', role: 'user' });
+  res.status(200).json({ token, expiresIn: '1h' });
+});
+
+// Swagger UI (apenas em desenvolvimento)
 if (config.NODE_ENV === 'development') {
-  app.post('/auth/token', (req, res) => {
-    const token = generateJWT({ sub: 'test-user', role: 'user' });
-    res.status(200).json({ token, expiresIn: '1h' });
-  });
+  setupSwagger(app);
 }
 
 //aplica auth a todas as rotas não publicas
