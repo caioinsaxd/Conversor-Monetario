@@ -8,12 +8,11 @@ API REST em Node.js para conversão de moedas em tempo real, com autenticação,
 
 - Conversão de moedas via cotação em tempo real (AwesomeAPI);
 - Autenticação por API Key e JWT;
-- Cache com TTL de 2 minutos para evitar requisições desnecessárias à API externa;
+- Cache com TTL configurável para evitar requisições desnecessárias à API externa;
 - Validação de entrada com Zod;
 - Tratamento de erros;
 - Testes unitários e de integração;
-- Logging estruturado em JSON com Pino;
-- Segurança com Helmet e rate limit;
+- Documentação interativa com Swagger/OpenAPI;
 
 ---
 
@@ -169,13 +168,21 @@ npm test -- --coverage
 
 ---
 
-## Lint e Formatação
+## Lint
 
 ```bash
 npm run lint
 npm run lint:fix
-npm run format
 ```
+
+---
+
+## Documentação Interativa (Swagger)
+
+A API possui documentação interativa via Swagger UI (disponível apenas em desenvolvimento):
+
+- **Swagger UI**: http://localhost:3000/api-docs
+- **OpenAPI JSON**: http://localhost:3000/api-docs.json
 
 ---
 
@@ -183,9 +190,16 @@ npm run format
 
 ```
 src/
-├── controllers/     # Recebe os requests e delega para o domínio;
-├── routes/          # Definição das rotas e middlewares;
-├── domain/          # Lógica de negócio e validação;
-├── data/            # Cache e integração com API;
-└── utils/           # Logger e tratamento de erros;
+├── config/                     # Configurações da aplicação;
+├── data-access/                # Cache e integração com API externa;
+├── domain/                     # Lógica de negócio;
+│   ├── services/               # Serviços de conversão e cotação;
+│   └── validators/             # Validação de dados com Zod;
+├── entry-points/               # Pontos de entrada da API;
+│   ├── api/                    # Controllers e rotas;
+│   └── middleware/             # Middlewares de autenticação e erros;
+├── utils/                      # Erros customizados;
+├── swagger.js                  # Configuração do Swagger;
+├── app.js                      # Configuração do Express;
+└── index.js                    # Entry point da aplicação;
 ```
